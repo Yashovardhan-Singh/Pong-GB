@@ -8,15 +8,17 @@ ifeq ($(strip $(shell which rm)),)
 	MKDIR_P := -mkdir
 endif
 
-RGBASM  := rgbasm
-RGBLINK := rgblink
-RGBFIX  := rgbfix
-RGBGFX  := rgbgfx
+RGBDS ?=
+
+RGBASM  := $(RGBDS)rgbasm
+RGBLINK := $(RGBDS)rgblink
+RGBFIX  := $(RGBDS)rgbfix
+RGBGFX  := $(RGBDS)rgbgfx
 
 ROMNAME := main
 ROMEXT := gb
 
-EMU := eumlicious
+EMU ?= emulicious
 
 ROM := bin/$(ROMNAME).$(ROMEXT)
 
@@ -75,5 +77,5 @@ clean:
 .PHONY: clean
 
 run:
-	$(EMU) $(ROM)
+	@$(EMU) $(ROM)
 .PHONY: run
