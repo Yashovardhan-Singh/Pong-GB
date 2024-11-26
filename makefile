@@ -35,17 +35,34 @@ rebuild:
 .PHONY: rebuild
 
 bin/%.$(ROMEXT):
+
+	@if [ ! -d "obj" ]; then \
+		$(MKDIR_P) obj; \
+	fi
+
+	@if [ ! -d "bin" ]; then \
+		$(MKDIR_P) bin; \
+	fi
+
 	@${MAKE} objects
 	@${MAKE} link
 	@${MAKE} fix
 
 objects:
+	@if [ ! -d "obj" ]; then \
+		$(MKDIR_P) obj; \
+	fi
+
 	@for file in $(BASEFILES); do \
 		$(RGBASM) -o obj/$$file.o src/$$file.asm; \
 	done
 .PHONY: objects
 
 link:
+	@if [ ! -d "bin" ]; then \
+		$(MKDIR_P) bin; \
+	fi
+	
 	@$(RGBLINK) -o $(ROM) $(OBJS)
 .PHONY: link
 
