@@ -3,6 +3,7 @@ rwildcard = $(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(
 RM_RF := rm -rf
 MKDIR_P := mkdir -p
 ifeq ($(strip $(shell which rm)),)
+	# Windows *really* tries its hardest to be Special™!
 	RM_RF := -rmdir /s /q
 	MKDIR_P := -mkdir
 endif
@@ -15,7 +16,7 @@ RGBGFX  := rgbgfx
 ROMNAME := main
 ROMEXT := gb
 
-EMU := emulicious
+EMU := eumlicious
 
 ROM := bin/$(ROMNAME).$(ROMEXT)
 
@@ -34,34 +35,17 @@ rebuild:
 .PHONY: rebuild
 
 bin/%.$(ROMEXT):
-
-	@if [ ! -d "obj" ]; then \
-		$(MKDIR_P) obj; \
-	fi
-
-	@if [ ! -d "bin" ]; then \
-		$(MKDIR_P) bin; \
-	fi
-	
 	@${MAKE} objects
 	@${MAKE} link
 	@${MAKE} fix
 
 objects:
-	@if [ ! -d "obj" ]; then \
-		$(MKDIR_P) obj; \
-	fi
-
 	@for file in $(BASEFILES); do \
 		$(RGBASM) -o obj/$$file.o src/$$file.asm; \
 	done
 .PHONY: objects
 
 link:
-	@if [ ! -d "bin" ]; then \
-		$(MKDIR_P) bin; \
-	fi
-
 	@$(RGBLINK) -o $(ROM) $(OBJS)
 .PHONY: link
 
@@ -70,8 +54,7 @@ fix:
 .PHONY: fix
 
 clean:
-	@$(RM_RF) obj bin
-	@$(MKDIR_P) obj bin
+	@$(RM_RF) obj/* bin/*
 .PHONY: clean
 
 run:
