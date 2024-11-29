@@ -19,6 +19,7 @@ ROMNAME := main
 ROMEXT := gb
 
 EMU ?= emulicious
+DBG_OPTIONS ?=
 
 ROM := bin/$(ROMNAME).$(ROMEXT)
 
@@ -28,6 +29,8 @@ SRCS = $(call rwildcard, src, *.asm)
 BASEFILES = $(basename $(notdir $(SRCS)))
 OBJS = $(call rwildcard, obj, *.o)
 
+.DEFAULT_GOAL := $(ROM)
+
 all: $(ROM)
 .PHONY: all
 
@@ -36,8 +39,12 @@ rebuild:
 	@${MAKE} all
 .PHONY: rebuild
 
-bin/%.$(ROMEXT):
+bin/%.$(ROMEXT): pre-config
+	@${MAKE} objects
+	@${MAKE} link
+	@${MAKE} fix
 
+pre-config:
 	@if [ ! -d "obj" ]; then \
 		$(MKDIR_P) obj; \
 	fi
@@ -45,27 +52,16 @@ bin/%.$(ROMEXT):
 	@if [ ! -d "bin" ]; then \
 		$(MKDIR_P) bin; \
 	fi
-
-	@${MAKE} objects
-	@${MAKE} link
-	@${MAKE} fix
+.PHONY: pre-config
 
 objects:
-	@if [ ! -d "obj" ]; then \
-		$(MKDIR_P) obj; \
-	fi
-
 	@for file in $(BASEFILES); do \
 		$(RGBASM) -o obj/$$file.o src/$$file.asm; \
 	done
 .PHONY: objects
 
 link:
-	@if [ ! -d "bin" ]; then \
-		$(MKDIR_P) bin; \
-	fi
-	
-	@$(RGBLINK) -o $(ROM) $(OBJS)
+	@$(RGBLINK) -o $(ROM) $(OBJS) $(DBG_OPTIONS)
 .PHONY: link
 
 fix:
@@ -76,6 +72,6 @@ clean:
 	@$(RM_RF) obj/* bin/*
 .PHONY: clean
 
-run:
+run: rebuild
 	@$(EMU) $(ROM)
 .PHONY: run
