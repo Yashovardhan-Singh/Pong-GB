@@ -25,19 +25,9 @@ Init:
 	ld [rLCDC], a
 
 	; Copy sprite data
-	ld de, pSprite1
+	ld de, pSprite
 	ld hl, _VRAM
-	ld bc, pSprite1.end - pSprite1
-	call MemCpy
-
-	ld de, pSprite2
-	ld hl, _VRAM + $10
-	ld bc, pSprite2.end - pSprite2
-	call MemCpy
-
-	ld de, pSprite3
-	ld hl, _VRAM + $20
-	ld bc, pSprite3.end - pSprite3
+	ld bc, pSprite.end - pSprite
 	call MemCpy
 
 	; Clear OAM memory
@@ -46,18 +36,26 @@ Init:
 	ld hl, _OAMRAM 					; Destination, from _OAMRAM
 	call MemFill
 
-	; Clear OAM memory
-	ld a, 0							; Fill with 0
-	ld b, 160 						; From _OAMRAM to _OAMRAM + 160
-	ld hl, $C000 					; Destination, from _OAMRAM
+	; Clear Shadow OAM memory
+	ld b, 160
+	ld hl, wShadowOam 				; Destination, from Shadow OAM
 	call MemFill
+
+	; Init variables
+	xor a, a
+	ld [wCurKeys], a
+	ld [wNewKeys], a
+
+	; Init player variables
+	ld a, 16
+	ld [wPlayerY], a
 
 	; Turn on LCD
 	ld a, LCDCF_ON | LCDCF_BGON | LCDCF_OBJON
 	ld [rLCDC], a
 
 	; Load pallete into background and objects
-	ld a, %11100100
+	ld a, %00100111
 	ld [rBGP], a
 	ld [rOBP0], a
 
@@ -71,37 +69,14 @@ SECTION "Main", ROM0
 ; Main function
 GameLoop:
 
-	; Reset hOAMIndex
-	ld a, 0
-	ld [hOAMIndex], a
+	call UpdateKeys						; Update input
+	
+	call CheckUp						; Check for up
+	call CheckDown						; Check for down
+	
+	call UpdateSOam						; Update Shadow OAM
 
-	; push everything to shadow OAM
-
-	; Top left paddle
-	ld de, paddleLeftMetaSprite.s1
-	call CpyMSprites
-
-	; Middle left paddle
-	ld de, paddleLeftMetaSprite.s2
-	call CpyMSprites
-
-	; Bottom left paddle
-	ld de, paddleLeftMetaSprite.s3
-	call CpyMSprites
-
-	; Top right paddle
-	ld de, paddleRightMetaSprite.s1
-	call CpyMSprites
-
-	; Middle right paddle
-	ld de, paddleRightMetaSprite.s2
-	call CpyMSprites
-
-	; Bottom right paddle
-	ld de, paddleRightMetaSprite.s3
-	call CpyMSprites
-
-	call VBlank
+	call VBlank							; Start checking for VBlank
 
 	; Direct memory access transfer shadow OAM to hard OAM
 	ld a, HIGH(wShadowOam)

@@ -38,18 +38,41 @@ VBlank::
 	ret
 
 
-; Special Copy Function for metasprites
-CpyMSprites::
-	ld a, $00				; Store the lower part of shadow OAM
-	ld hl, hOAMIndex		; load OAM index into hl
-	adc a, [hl] 			; add how many sprites done to offset shadow OAM
-	ld h, $c0 				; Store high byte of shadow OAM to h
-	ld l, a					; store low byte with offset to l
-	ld bc, 4 				; length of object, 4 properties
-	call MemCpy 			; copy
-	ld hl, hOAMIndex
-	ld a, [hl]
-	adc a, 4
-	ld [hl], a 				; increment hl by 4
-	ret
+; Update Shadow OAM with necessary sprites
+; 3 done, 4 more to go
+; @param None
+UpdateSOam::
 
+	; Load Shadow OAM
+	ld hl, wShadowOam
+	
+	; Top left
+	ld a, [wPlayerY]
+	ld [hli], a
+	ld a, 8
+	ld [hli], a
+	ld a, 0
+	ld [hli], a
+	ld [hli], a
+
+	; Middle left
+	ld a, [wPlayerY]
+	add a, 8
+	ld [hli], a
+	ld a, 8
+	ld [hli], a
+	ld a, 0
+	ld [hli], a
+	ld [hli], a
+
+	; Bottom left
+	ld a, [wPlayerY]
+	add a, 16
+	ld [hli], a
+	ld a, 8
+	ld [hli], a
+	ld a, 0
+	ld [hli], a
+	ld [hli], a
+
+	ret

@@ -8,6 +8,8 @@ ifeq ($(strip $(shell which rm)),)
 	MKDIR_P := -mkdir
 endif
 
+ZIP := zip
+
 RGBDS ?=
 
 RGBASM  := $(RGBDS)rgbasm
@@ -75,3 +77,7 @@ clean:
 run: rebuild
 	@$(EMU) $(ROM)
 .PHONY: run
+
+release: rebuild
+	@$(ZIP) bin/pong.zip $(ROM)
+.PHONY: release

@@ -35,8 +35,3 @@ hOAMDMA::
 SECTION "Shadow OAM", WRAM0[$C000], ALIGN[8]
 wShadowOam::
 	ds 160								; reserve space for shadow OAM
-
-
-SECTION "Shadow OAM Index", HRAM
-hOAMIndex::
-	db									; reserve space for offset
