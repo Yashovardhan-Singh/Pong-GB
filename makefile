@@ -19,6 +19,7 @@ RGBGFX  := $(RGBDS)rgbgfx
 
 ROMNAME := main
 ROMEXT := gb
+ROMTITLE := Pong
 
 EMU ?= emulicious
 DBG_OPTIONS ?=
@@ -26,39 +27,55 @@ DBG_OPTIONS ?=
 ROM := bin/$(ROMNAME).$(ROMEXT)
 
 INCDIRS := src/ include/
+SRCDIR := src
+ASSETDIRRAW := assets/raw
+ASSETDIROUT := assets/gen
+DIROUT := bin
+DIROBJ := obj
 
-SRCS = $(call rwildcard, src, *.asm)
+SRCS = $(call rwildcard, $(INCDIRS), *.asm)
+SPRITES = $(call rwildcard, $(ASSETDIRRAW), *.png)
 BASEFILES = $(basename $(notdir $(SRCS)))
-OBJS = $(call rwildcard, obj, *.o)
+BASESPRITES = $(basename $(notdir $(SPRITES)))
+OBJS = $(call rwildcard, $(DIROBJ), *.o)
 
-.DEFAULT_GOAL := $(ROM)
+.DEFAULT_GOAL := rebuild
 
-all: $(ROM)
+all: default release run
 .PHONY: all
+
+default: $(ROM)
+.PHONY: default
 
 rebuild:
 	@${MAKE} clean
-	@${MAKE} all
+	@${MAKE} pre-config
+	@${MAKE} default
 .PHONY: rebuild
 
 bin/%.$(ROMEXT): pre-config
+	@${MAKE} sprites
 	@${MAKE} objects
 	@${MAKE} link
 	@${MAKE} fix
 
 pre-config:
-	@if [ ! -d "obj" ]; then \
-		$(MKDIR_P) obj; \
+	@if [ ! -d "$(DIROBJ)" ]; then \
+		$(MKDIR_P) $(DIROBJ); \
+	fi
+	
+	@if [ ! -d "$(ASSETDIROUT)" ]; then \
+		$(MKDIR_P) $(ASSETDIROUT); \
 	fi
 
-	@if [ ! -d "bin" ]; then \
-		$(MKDIR_P) bin; \
+	@if [ ! -d "$(DIROUT)" ]; then \
+		$(MKDIR_P) $(DIROUT); \
 	fi
 .PHONY: pre-config
 
 objects:
 	@for file in $(BASEFILES); do \
-		$(RGBASM) -o obj/$$file.o src/$$file.asm; \
+		$(RGBASM) -o $(DIROBJ)/$$file.o $(SRCDIR)/$$file.asm; \
 	done
 .PHONY: objects
 
@@ -67,11 +84,11 @@ link:
 .PHONY: link
 
 fix:
-	@$(RGBFIX) -v -p 0xFF $(ROM)
+	@$(RGBFIX) -v -p 0xFF $(ROM) -t "$(ROMTITLE)"
 .PHONY: fix
 
 clean:
-	@$(RM_RF) obj/* bin/*
+	@$(RM_RF) $(DIROBJ)/* $(DIROUT)/* $(ASSETDIROUT)/*
 .PHONY: clean
 
 run: rebuild
@@ -81,3 +98,9 @@ run: rebuild
 release: rebuild
 	@$(ZIP) bin/pong.zip $(ROM)
 .PHONY: release
+
+sprites:
+	@for i in $(BASESPRITES); do \
+		$(RGBGFX) $(ASSETDIRRAW)/$$i.png -o $(ASSETDIROUT)/$$i.2bpp; \
+	done
+.PHONY: sprites

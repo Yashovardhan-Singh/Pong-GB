@@ -24,10 +24,16 @@ Init:
 	ld a, LCDCF_OFF
 	ld [rLCDC], a
 
-	; Copy sprite data
+	; Copy paddle sprite data
 	ld de, pSprite
 	ld hl, _VRAM
 	ld bc, pSprite.end - pSprite
+	call MemCpy
+
+	; Copy ball sprite data
+	ld de, bSprite
+	ld hl, _VRAM + $10
+	ld bc, bSprite.end - bSprite
 	call MemCpy
 
 	; Clear OAM memory
