@@ -1,5 +1,12 @@
 INCLUDE "include/hardware.inc"
 
+SECTION "RNG consts", ROM0
+RNGConst:: db 2
+
+SECTION "RNG seeds", WRAM0
+wRNGState:: db
+
+
 SECTION "Functions", ROM0
 
 
@@ -35,6 +42,19 @@ VBlank::
 	ld a, [rLY] 			; get value of current scanline
 	cp 144					; check if scanline has reached bottom
 	jp c, VBlank			; if not, loop
+	ret
+
+
+; RNG generator
+; based on LFSR (8 bit version)
+; seed = (a * seed + c) % m
+RNG::
+	ld a, [wRNGState]
+	ld hl, RNGConst
+	ld b, [hl]
+	add b
+	inc b
+	ld [wRNGState], a
 	ret
 
 ;--------------------------------;
@@ -99,8 +119,9 @@ UpdateSOam::
 	m_right_paddle_args_load
 
 	; Ball Sprite
-	ld a, 80
+	ld a, [wBallCoordY]
 	ld [hli], a
+	ld a, [wBallCoordX]
 	ld [hli], a
 	ld a, 1
 	ld [hli], a
