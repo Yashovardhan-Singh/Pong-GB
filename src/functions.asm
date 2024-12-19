@@ -29,6 +29,57 @@ MemFill::
 	ret
 
 
+InitVars::
+	; Init input variables
+	xor a, a
+	ld [wCurKeys], a
+	ld [wNewKeys], a
+
+	; Init RNG Variables
+	ld [wRNGState], a
+	ld [wRNGIndex], a
+
+	; Init player variables
+	ld a, 16
+	ld [wPlayerY], a
+
+	ld a, 17
+	ld [wEnemyY], a
+
+	; Init ball variables
+	ld a, 80
+	ld [wBallCoordX], a
+	ld [wBallCoordY], a
+	ld a, 1
+	ld [wBallVelX], a
+	ld [wBallVelY], a
+
+	ret
+
+CheckWinLoss::
+	ld a, [wBallCoordX]
+	cp 0
+	jp z, .reset
+	cp 168
+	jp z, .reset
+	jp nc, .reset
+	jp .exit
+.reset:
+	; rough fade to black
+	ld a, LCDCF_ON | LCDCF_BGON | LCDCF_OBJOFF
+	ld [rLCDC], a
+	
+	call InitVars
+	call PlaySoundEnd
+	call StopSoundEnd
+	
+	; turn on sprites again
+	ld a, LCDCF_ON | LCDCF_BGON | LCDCF_OBJON
+	ld [rLCDC], a
+.exit:
+	ret
+
+
 ; Loop until VBlank reached
 ; @param NO PARAM
 VBlank::
@@ -79,11 +130,6 @@ UpdateSOam::
 	add a, 8
 	m_left_paddle_args_load
 
-	; Bottom left
-	ld a, [wPlayerY]
-	add a, 16
-	m_left_paddle_args_load
-
 	; Right Paddle
 
 	; Top right
@@ -93,11 +139,6 @@ UpdateSOam::
 	; middle right
 	ld a, [wEnemyY]
 	add a, 8
-	m_right_paddle_args_load
-
-	; bottom right
-	ld a, [wEnemyY]
-	add a, 16
 	m_right_paddle_args_load
 
 	; Ball Sprite

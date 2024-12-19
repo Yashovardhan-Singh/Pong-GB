@@ -116,7 +116,7 @@ SetBallVelocityX::
     ld a, [wBallCoordY]
     ld b, a
     ld a, [wPlayerY]
-    add a, 24
+    add a, 16
     cp a, b
     jp z, .PositiveX
     jp nc, .PositiveX
@@ -125,7 +125,7 @@ SetBallVelocityX::
     ld a, [wBallCoordY]
     ld b, a
     ld a, [wEnemyY]
-    add a, 24
+    add a, 16
     cp a, b
     jp z, .NegativeX
     jp nc, .NegativeX
@@ -133,10 +133,14 @@ SetBallVelocityX::
 .PositiveX:
     ld a, 1
     ld [wBallVelX], a
+    call PlaySound
+    call StopSound
     jp .exit
 .NegativeX:
     ld a, 3
     ld [wBallVelX], a
+    call PlaySound
+    call StopSound
     jp .exit
 .exit:
     ret
