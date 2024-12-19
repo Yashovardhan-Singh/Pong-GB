@@ -56,6 +56,9 @@ Init:
 	ld a, 16
 	ld [wPlayerY], a
 
+	ld a, 17
+	ld [wEnemyY], a
+
 	; Init ball variables
 	ld a, 80
 	ld [wBallCoordX], a
@@ -67,6 +70,7 @@ Init:
 	; Init RNG Variable
 	ld a, 0
 	ld [wRNGState], a
+	ld [wRNGIndex], a
 
 	; Turn on LCD
 	ld a, LCDCF_ON | LCDCF_BGON | LCDCF_OBJON
@@ -87,7 +91,7 @@ SECTION "Main", ROM0
 ; Main function
 GameLoop:
 
-	call RNG
+	call RNGUpdate
 
 	call UpdateKeys						; Update input
 	
@@ -95,6 +99,8 @@ GameLoop:
 	call CheckDown						; Check for down
 	
 	call UpdateBall						; Update Ball
+
+	call UpdateEnemy
 	
 	call UpdateSOam						; Update Shadow OAM
 

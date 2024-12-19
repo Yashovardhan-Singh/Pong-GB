@@ -85,18 +85,58 @@ SetBallVelocityY::
     ld [wBallVelY], a
     ret
 
+
 SetBallVelocityX::
     ld a, [wBallCoordX]
-    cp a, 7                         ; (8 - 1)
+    cp a, 15                         ; (16 - 1)
+    jp z, .SecondPveCheck
+    jp c, .SecondPveCheck
+.FirstNveCheck
+    cp a, 155                       ; (160 - 12 + 7)
+    jp z, .SecondNveCheck
+    jp nc, .SecondNveCheck
+    jp .exit
+.SecondPveCheck:
+    ld a, [wPlayerY]
+    ld b, a                         ; Player Top Left Point (Y)
+    ld a, [wBallCoordY]
+    cp a, b
+    jp z, .ThirdPveCheck
+    jp nc, .ThirdPveCheck
+    jp .FirstNveCheck
+.SecondNveCheck:
+    ld a, [wEnemyY]
+    ld b, a
+    ld a, [wBallCoordY]
+    cp a, b
+    jp z, .ThirdNveCheck
+    jp nc, .ThirdNveCheck
+    jp .exit
+.ThirdPveCheck:
+    ld a, [wBallCoordY]
+    ld b, a
+    ld a, [wPlayerY]
+    add a, 24
+    cp a, b
     jp z, .PositiveX
-    cp a, 161                       ; (160 + 8 - 7)
+    jp nc, .PositiveX
+    jp .FirstNveCheck
+.ThirdNveCheck:
+    ld a, [wBallCoordY]
+    ld b, a
+    ld a, [wEnemyY]
+    add a, 24
+    cp a, b
     jp z, .NegativeX
-    ret
+    jp nc, .NegativeX
+    jp .exit
 .PositiveX:
     ld a, 1
     ld [wBallVelX], a
-    ret
+    jp .exit
 .NegativeX:
     ld a, 3
     ld [wBallVelX], a
+    jp .exit
+.exit:
     ret
