@@ -8,7 +8,7 @@ SECTION "player routines", ROM0
 MoveUp::
     ld a, [wPlayerY]
     inc a
-    cp a, 136                   ; I do not know how, but yes
+    cp a, 144                   ; I do not know how, but yes
     jp z, .end
     ld [wPlayerY], a
 .end

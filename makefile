@@ -17,7 +17,7 @@ RGBLINK := $(RGBDS)rgblink
 RGBFIX  := $(RGBDS)rgbfix
 RGBGFX  := $(RGBDS)rgbgfx
 
-ROMNAME := main
+ROMNAME := pong
 ROMEXT := gb
 ROMTITLE := Pong
 

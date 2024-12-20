@@ -30,17 +30,35 @@ SetBallPosY::
     cp a, 1
     jp z, .IncY
 
+    cp a, 2
+    jp z, .DIncY
+
     cp a, 3
     jp z, .DecY
+
+    cp a, 4
+    jp z, .DDecY
+
+    ret
 
 .IncY:
     ld a, [wBallCoordY]
     inc a
     ld [wBallCoordY], a
     ret
+.DIncY:
+    ld a, [wBallCoordY]
+    add a, 2
+    ld [wBallCoordY], a
+    ret
 .DecY:
     ld a, [wBallCoordY]
     dec a
+    ld [wBallCoordY], a
+    ret
+.DDecY:
+    ld a, [wBallCoordY]
+    sub a, 2
     ld [wBallCoordY], a
     ret
 
@@ -53,15 +71,33 @@ SetBallPosX::
     cp a, 1
     jp z, .IncX
 
+    cp a, 2
+    jp z, .DIncX
+
     cp a, 3
     jp z, .DecX
+
+    cp a, 4
+    jp z, .DDecX
+
+    ret
 
 .IncX:
     ld a, [wBallCoordX]
     inc a
     ld [wBallCoordX], a
     ret
+.DIncX:
+    ld a, [wBallCoordX]
+    add a, 2
+    ld [wBallCoordX], a
+    ret
 .DecX:
+    ld a, [wBallCoordX]
+    dec a
+    ld [wBallCoordX], a
+    ret
+.DDecX
     ld a, [wBallCoordX]
     dec a
     ld [wBallCoordX], a
@@ -73,8 +109,10 @@ SetBallVelocityY::
     ld a, [wBallCoordY]
     cp a, 15
     jp z, .PositiveY
+    jp c, .PositiveY
     cp a, 153                   ; (144 + 16 - 7)
     jp z, .NegativeY
+    jp nc, .NegativeY
     ret
 .PositiveY:
     ld a, 1
@@ -131,13 +169,25 @@ SetBallVelocityX::
     jp nc, .NegativeX
     jp .exit
 .PositiveX:
+    ld a, [wRNGState]
+    and 1
+    cp 0
+    jp z, .Peven
+    ld a, 2
+    jp .write
+.Peven:
     ld a, 1
-    ld [wBallVelX], a
-    call PlaySound
-    call StopSound
-    jp .exit
+    jp .write
 .NegativeX:
+    ld a, [wRNGState]
+    and 1
+    cp 0
+    jp z, .Neven
+    ld a, 4
+    jp .write
+.Neven:
     ld a, 3
+.write:
     ld [wBallVelX], a
     call PlaySound
     call StopSound

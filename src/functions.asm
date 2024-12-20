@@ -35,10 +35,6 @@ InitVars::
 	ld [wCurKeys], a
 	ld [wNewKeys], a
 
-	; Init RNG Variables
-	ld [wRNGState], a
-	ld [wRNGIndex], a
-
 	; Init player variables
 	ld a, 16
 	ld [wPlayerY], a
@@ -52,6 +48,7 @@ InitVars::
 	ld [wBallCoordY], a
 	ld a, 1
 	ld [wBallVelX], a
+	ld a, 1
 	ld [wBallVelY], a
 
 	ret
