@@ -63,6 +63,7 @@ CheckWinLoss::
 	jp .exit
 .reset:
 	; rough fade to black
+	call VBlank				; DO NOT TURN OFF LCD OUTSIDE VBLANK
 	ld a, LCDCF_ON | LCDCF_BGON | LCDCF_OBJOFF
 	ld [rLCDC], a
 	
